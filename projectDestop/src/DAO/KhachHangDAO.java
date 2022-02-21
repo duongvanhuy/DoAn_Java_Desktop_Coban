@@ -6,12 +6,16 @@
 package DAO;
 
 import BEAN.KhachHang;
+import Connection.Connection_to_SQLServer;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -48,5 +52,53 @@ public class KhachHangDAO {
             ex.printStackTrace();
         }
         return khachHang;
+    }
+    public static void insert_new_KhachHang(String hoTen, String sdt, Date ngayTao){
+        
+        
+        java.util.Date ngayGio = ngayTao;
+        java.sql.Date sqlStartDate = new java.sql.Date(ngayGio.getTime());
+        Connection conn = Connection_to_SQLServer.innit();
+        String sql = "insert into khachhang(hoTen,soDienThoai,NgayTao) values(?,?,?)";
+        try {
+            PreparedStatement ps = conn.prepareStatement(sql);
+            ps.setString(1, hoTen);
+            ps.setString(2, sdt);
+            ps.setDate(3, sqlStartDate);
+            
+            int result = ps.executeUpdate();
+            System.out.println("khách hàng : " + result);
+            
+            
+            close(conn, ps, null);
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+        
+        
+        
+    }
+     public static void close(Connection conn, PreparedStatement ps, ResultSet rs) {
+
+        if (rs != null) {
+            try {
+                rs.close();
+            } catch (SQLException e) {
+            }
+        }
+
+        if (ps != null) {
+            try {
+                ps.close();
+            } catch (SQLException e) {
+            }
+        }
+
+        if (conn != null) {
+            try {
+                conn.close();
+            } catch (SQLException e) {
+            }
+        }
     }
 }

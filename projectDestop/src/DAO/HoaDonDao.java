@@ -6,6 +6,7 @@
 package DAO;
 
 import BEAN.HoaDon;
+import Connection.Connection_to_SQLServer;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;

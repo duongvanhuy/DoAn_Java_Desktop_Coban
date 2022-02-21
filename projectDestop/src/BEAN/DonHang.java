@@ -22,6 +22,15 @@ public class DonHang {
     private int hinhThucVC;
     private int tongTien;
     private Date ngayDat;
+    private int phiVC;
+
+    public int getPhiVC() {
+        return phiVC;
+    }
+
+    public void setPhiVC(int phiVC) {
+        this.phiVC = phiVC;
+    }
 
     public DonHang() {
     }

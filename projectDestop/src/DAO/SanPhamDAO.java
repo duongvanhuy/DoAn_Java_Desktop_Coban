@@ -6,6 +6,7 @@
 package DAO;
 
 import BEAN.MatHang;
+import Connection.Connection_to_SQLServer;
 import java.sql.Connection;
 
 import java.sql.PreparedStatement;
@@ -60,6 +61,31 @@ public class SanPhamDAO {
             ex.printStackTrace();
         }
         return null;
+    }
+    public static String[] getAllMaMH(){
+        int i =0;
+        String[] listMaMH = new String[17];
+        
+        Connection conn = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        String sql = "select maMH from matHang";
+        
+        try {
+            conn = Connection_to_SQLServer.innit();
+            ps = conn.prepareStatement(sql);
+            rs = ps.executeQuery();
+
+            while (rs.next()) {  
+                listMaMH[i] = rs.getString("MaMH");
+                i++;
+            }
+            System.err.println("dộ dài :" +listMaMH.length);
+            close(conn, ps, rs);
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+        return listMaMH;
     }
     public static void addSanPham(MatHang mathang){
      
@@ -263,10 +289,13 @@ public class SanPhamDAO {
 //                lấy loại để khỏi khai báo 1 biến mới
 //                  loiaj giờ sẽ có nhiệm vụ là trạng thái
                 mathang.setLoai(rs.getInt("TrangThai"));
-                if(rs.getInt("TrangThai") ==1){
+                if(trangThai ==1){
                     mathang.setNhaSX("Đã giao");
                 }
-                if(rs.getInt("TrangThai")==3){
+                  if(trangThai ==2){
+                    mathang.setNhaSX("Đang vận chuyển");
+                }
+                if(trangThai==3){
                     mathang.setNhaSX("Đã hủy");
                 }
 //                mathang.setNhaSX(rs.getString("NhaSX"));
@@ -285,6 +314,128 @@ public class SanPhamDAO {
         }
          return mathangs;
      }
+     
+     
+//     sort == 0 => ASC        sort ==1 => DESC
+//     dvSort ==0 => (A.giaBan-A.giaNhap)*B.soluong     dvSort ==1 => B.soluong
+       public static List<MatHang> getAllMatHangSale2(int trangThai, int sort, int dvSort){
+         List<MatHang> mathangs = new ArrayList<MatHang>();
+         Connection conn = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        
+        String strdvSort = "" ;
+        String strsort ="" ;
+        if(sort == 0 && dvSort ==0){
+            strdvSort ="(A.giaBan-A.giaNhap)*B.soluong";
+            strsort = "ASC";
+        }
+        if(sort == 0 && dvSort ==1){
+            strdvSort ="B.soluong";
+            strsort = "ASC";
+        }
+        if(sort == 1 && dvSort ==0){
+            strdvSort ="(A.giaBan-A.giaNhap)*B.soluong";
+            strsort = "DESC";
+        }
+        if(sort == 1 && dvSort ==1){
+            strdvSort ="B.soluong";
+            strsort = "DESC";
+        }
+
+        String sql = "select A.MaMH,A.TenMH, A.giaNhap, A.giaBan, (A.giaBan-A.giaNhap)*B.soluong as 'LN thuần', B.soluong, D.TrangThai\n" +
+"from mathang A, ChiTietDonHang B, DonHang C, TinhTrangDonHang D\n" +
+"where A.MaMH = B.MaMH and \n" +
+"B.SoDH = C.SoDH and \n" +
+"C.SoDH= D.SoDonHang and\n" +
+"D.TrangThai =?\n" +
+"group by  A.MaMH, B.soluong, D.TrangThai, A.TenMH, A.giaNhap, A.giaBan\n" +
+"order by " + strdvSort + " " + strsort;
+
+        try {
+            conn = Connection_to_SQLServer.innit();
+            ps = conn.prepareStatement(sql);
+            ps.setInt(1, trangThai);
+            rs = ps.executeQuery();
+
+            while (rs.next()) {
+                MatHang mathang = new MatHang();
+
+                mathang.setMaMH(rs.getString("MaMH"));
+                mathang.setTenMH(rs.getString("TenMH"));
+                mathang.setSoLuong(rs.getInt("SoLuong"));
+//                lấy loại để khỏi khai báo 1 biến mới
+//                  loiaj giờ sẽ có nhiệm vụ là trạng thái
+                mathang.setLoai(rs.getInt("TrangThai"));
+                if(trangThai ==1){
+                    mathang.setNhaSX("Đã giao");
+                }
+                  if(trangThai ==2){
+                    mathang.setNhaSX("Đang vận chuyển");
+                }
+                if(trangThai==3){
+                    mathang.setNhaSX("Đã hủy");
+                }
+                mathang.setGiaNhap(rs.getInt("GiaNhap"));
+                mathang.setGiaBan(rs.getInt("giaBan"));
+                mathangs.add(mathang);
+            }
+            close(conn, ps, rs);
+            return mathangs;
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+         return mathangs;
+     }
+       
+       
+       //     sort == 0 => ASC        sort ==1 => DESC
+       public static  List<MatHang>  getMatHang_TonKho(int sort){
+            List<MatHang> mathangs = new ArrayList<MatHang>();
+
+        Connection conn = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        String strSort ="";
+        if(sort ==0){
+            strSort ="ASC";
+        }
+        if(sort==1){
+            strSort ="DESC";
+        }
+        String sql = "select A.MaMH,A.TenMH, A.giaNhap, A.giaBan , A.soluong, A.NgayTao\n" +
+"from mathang A \n" +
+"group by A.MaMH,A.TenMH, A.giaNhap, A.giaBan , A.soluong, A.NgayTao\n" +
+"order by  A.soluong " + strSort;
+
+        try {
+            conn = Connection_to_SQLServer.innit();
+            ps = conn.prepareStatement(sql);
+            rs = ps.executeQuery();
+
+            while (rs.next()) {
+                MatHang mathang = new MatHang();
+
+                mathang.setMaMH(rs.getString("MaMH"));
+                mathang.setTenMH(rs.getString("TenMH"));
+                mathang.setSoLuong(rs.getInt("SoLuong"));
+//                mathang.setLoai(rs.getInt("Loai"));
+//                mathang.setNhaSX(rs.getString("NhaSX"));
+                mathang.setNgayTao(rs.getDate("NgayTao"));
+                mathang.setGiaNhap(rs.getInt("GiaNhap"));
+                mathang.setGiaBan(rs.getInt("giaBan"));
+//                mathang.setHinhAnh(rs.getBytes("hinhAnh"));
+               
+
+                mathangs.add(mathang);
+            }
+            close(conn, ps, rs);
+            return mathangs;
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+        return null;
+       }
     public static void close(Connection conn, PreparedStatement ps, ResultSet rs) {
 
         if (rs != null) {

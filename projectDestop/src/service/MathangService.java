@@ -39,11 +39,20 @@ public class MathangService {
         return SanPhamDAO.searchProduct(tenMH);
     }
 
-    public static List<MatHang> getAllmatHang_on_Donhang(int maDH) {
+    public  List<MatHang> getAllmatHang_on_Donhang(int maDH) {
         return SanPhamDAO.getAllmatHang_on_Donhang(maDH);
     }
 
-    public static List<MatHang> getAllMatHangSale(int trangThai) {
+    public  List<MatHang> getAllMatHangSale(int trangThai) {
         return SanPhamDAO.getAllMatHangSale(trangThai);
     }
+     public  List<MatHang> getAllMatHangSale2(int trangThai, int sort, int dvSort){
+         return SanPhamDAO.getAllMatHangSale2(trangThai,sort,dvSort);
+     }
+     public   List<MatHang>  getMatHang_TonKho(int sort){
+          return SanPhamDAO.getMatHang_TonKho(sort);
+     }
+     public static String[] getAllMaMH(){
+         return SanPhamDAO.getAllMaMH();
+     }
 }

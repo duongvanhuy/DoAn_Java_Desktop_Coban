@@ -6,6 +6,7 @@
 package DAO;
 
 import BEAN.User;
+import Connection.Connection_to_SQLServer;
 import java.sql.Connection;
 
 import java.sql.PreparedStatement;
@@ -36,7 +37,7 @@ public class UserDao {
             rs = ps.executeQuery();
 
             while (rs.next()) {
-               if(user.getUserName().equalsIgnoreCase(rs.getString("username")) && user.getPassWord().equalsIgnoreCase(rs.getString("pass"))){
+               if(user.getUserName().equals(rs.getString("username")) && user.getPassWord().equalsIgnoreCase(rs.getString("pass"))){
                    return true;
                }
             }

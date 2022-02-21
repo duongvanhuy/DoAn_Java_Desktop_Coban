@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package DAO;
+package Connection;
 
 import com.microsoft.sqlserver.jdbc.SQLServerDataSource;
 import java.sql.*;
@@ -33,8 +33,8 @@ public class Connection_to_SQLServer {
 
         try {
             conn = ds.getConnection();
-            System.out.println("Kết nối thành công");
-            System.out.println(conn.getCatalog());
+//            System.out.println("Kết nối thành công");
+//            System.out.println(conn.getCatalog());
          return  conn;
         } catch (Exception e) {
             e.printStackTrace();
